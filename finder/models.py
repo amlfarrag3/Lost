@@ -17,6 +17,8 @@ class MissingPerson(models.Model):
     date_of_birth = models.DateField()
     gender = models.CharField(max_length=1, choices=GENDER_CHOICES)
     blood_type = models.CharField(max_length=3, choices=BLOOD_TYPES, null=True, blank=True)
+    mother_blood_type=models.CharField(max_length=3,choices=BLOOD_TYPES,null=True,blank=True)
+    father_blood_type=models.CharField(max_length=3,choices=BLOOD_TYPES,null=True,blank=True)
     disappearance_location = models.CharField(max_length=200)
     disappearance_date = models.DateField()
     photo = models.ImageField(upload_to='missing_persons_photos/')
