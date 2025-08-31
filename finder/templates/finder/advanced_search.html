@@ -1,0 +1,36 @@
+<h2>Advanced Search About Missing People</h2>
+
+<form method="get">
+    {{ form.as_p }}
+    <button type="submit">Search</button>
+</form>
+
+{% if searched %}   {# Results are shown only after searching. #}
+    <h3>Results</h3>
+    <ul>
+        {% for person in page_obj %}
+            <li>
+                {{ person.full_name }} - {{ person.blood_type }} - 
+                {{ person.disappearance_location }} - {{ person.disappearance_date }}
+            </li>
+        {% empty %}
+            <li>No Results</li>
+        {% endfor %}
+    </ul>
+
+    {% if page_obj.has_other_pages %}
+        <div class="pagination">
+            {% if page_obj.has_previous %}
+                <a href="?page={{ page_obj.previous_page_number }}&{{ request.GET.urlencode }}">Back</a>
+            {% endif %}
+
+            <span>صفحة {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}&{{ request.GET.urlencode }}">Next</a>
+            {% endif %}
+        </div>
+    {% endif %}
+{% endif %}
+
+

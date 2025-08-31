@@ -106,14 +106,14 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
-STATICFILES_DIRS = [
-    BASE_DIR / "static",
-]
+#STATICFILES_DIRS = [
+   # BASE_DIR / "static",
+#]
 
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],  # path to your templates folder
+        'DIRS': [],  
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -131,4 +131,8 @@ TEMPLATES = [
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+LOGOUT_REDIRECT_URL = "login"       
+LOGIN_URL = "login"         
+LOGIN_REDIRECT_URL = "home"   
+LOGOUT_REDIRECT_URL = "login"      
 

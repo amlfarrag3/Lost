@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <title>home page</title>
+</head>
+<body>
+    <h1>Welcome to the Missing Persons Search System</h1>
+
+    <nav>
+        <ul>
+            <li><a href="{% url 'advanced-search' %}">Advanced Search</a></li>
+            <li><a href="{% url 'report-list' %}">Reports</a></li>
+            <li><a href="{% url 'add-missing-person' %}">Add Missing Person</a></li>
+            <li><a href="{% url 'logout' %}">log out</a></li>
+        </ul>
+    </nav>
+</body>
+</html>

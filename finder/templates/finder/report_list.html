@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <title>Reports</title>
+</head>
+<body>
+    <h2>Reports List</h2>
+
+    {% if reports %}
+        <table border="1" cellpadding="8">
+            <thead>
+                <tr>
+                    <th>Missing Person</th>
+                    <th>Searcher</th>
+                    <th>Report Date</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for report in reports %}
+                <tr>
+                    <td>{{ report.missing_person.full_name }}</td>
+                    <td>{{ report.searcher.full_name }} ({{ report.searcher.phone_number }})</td>
+                    <td>{{ report.report_date|date:"Y-m-d H:i" }}</td>
+                    <td>{{ report.status }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No Reports</p>
+    {% endif %}
+
+    <br>
+    <a href="{% url 'advanced-search' %}">Back TO Search</a>
+</body>
+</html>

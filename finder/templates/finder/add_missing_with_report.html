@@ -1,0 +1,16 @@
+<h2>Add Missing Person Plus Report</h2>
+
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <fieldset>
+        <legend>Missing Person Data</legend>
+        {{ person_form.as_p }}
+    </fieldset>
+
+    <fieldset>
+        <legend>Report Data</legend>
+        {{ report_form.as_p }}
+    </fieldset>
+
+    <button type="submit">حفظ</button>
+</form>

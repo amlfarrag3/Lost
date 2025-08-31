@@ -1,70 +1,69 @@
 from django.core.management.base import BaseCommand
 from finder.models import MissingPerson, Searcher, Report
-from django.core.files.uploadedfile import SimpleUploadedFile
-import random
-from datetime import date, timedelta
-
-# Static test data
-NAMES = ["Ahmed Mohamed", "Fatima Ali", "Youssef Khaled", "Mariam Saeed", "Ali Hassan", "Nour Mohamed", "Omar Gamal", "Laila Fouad", "Mostafa Ibrahim", "Heba Galal"]
-SEARCHER_NAMES = ["Khaled Gamal", "Marwa Adel", "Hassan Tarek", "Dina Samir", "Mahmoud Kamal"]
-GENDERS = ['M', 'F']
-BLOOD_TYPES = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']
-LOCATIONS = ["Cairo", "Alexandria", "Assiut", "Minya", "Fayoum"]
+from django.contrib.auth.models import User
+from datetime import date
 
 class Command(BaseCommand):
-    help = 'Seeds the database with sample data for development.'
+    help = "Seed database with sample data"
 
     def handle(self, *args, **options):
-        self.stdout.write("Deleting old data...")
-        MissingPerson.objects.all().delete()
-        Searcher.objects.all().delete()
-        Report.objects.all().delete()
-        
-        self.stdout.write("Creating new sample data...")
+        self.stdout.write("Seeding data...")
 
-        # Create Missing Persons
-        for i in range(10):
-            name = NAMES[i]
-            gender = random.choice(GENDERS)
-            blood_type = random.choice(BLOOD_TYPES)
-            location = random.choice(LOCATIONS)
-            
-            random_age = random.randint(5, 45)
-            birth_date = date.today() - timedelta(days=random_age * 365)
-            dummy_photo = SimpleUploadedFile(f"photo_{i}.jpg", b"file_content", content_type="image/jpeg")
+        # Create sample users
+        user1, _ = User.objects.get_or_create(username="john_doe", defaults={"email": "john@example.com"})
+        user2, _ = User.objects.get_or_create(username="jane_smith", defaults={"email": "jane@example.com"})
 
-            MissingPerson.objects.create(
-                full_name=name,
-                date_of_birth=birth_date,
-                gender=gender,
-                blood_type=blood_type,
-                disappearance_location=location,
-                disappearance_date=date.today(),
-                photo=dummy_photo
-            )
-        self.stdout.write(self.style.SUCCESS('Successfully created 10 missing persons!'))
+        # Create searchers
+        searcher1, _ = Searcher.objects.get_or_create(
+            user=user1,
+            defaults={
+                "full_name": "John Doe",
+                "phone_number": "123456789",
+                "email": "john@example.com"
+            }
+        )
 
-        # Create Searchers
-        for name in SEARCHER_NAMES:
-            Searcher.objects.create(
-                full_name=name,
-                phone_number=f"0100{random.randint(1000000, 9999999)}",
-                email=f"{name.replace(' ', '').lower()}@example.com"
-            )
-        self.stdout.write(self.style.SUCCESS('Successfully created 5 searchers!'))
+        searcher2, _ = Searcher.objects.get_or_create(
+            user=user2,
+            defaults={
+                "full_name": "Jane Smith",
+                "phone_number": "987654321",
+                "email": "jane@example.com"
+            }
+        )
 
-        # Create Reports
-        all_missing_persons = MissingPerson.objects.all()
-        all_searchers = Searcher.objects.all()
+        # Create missing persons
+        person1, _ = MissingPerson.objects.get_or_create(
+            full_name="Ali Hassan",
+            date_of_birth=date(2010, 5, 12),
+            gender="M",
+            blood_type="A+",
+            disappearance_location="Cairo",
+            disappearance_date=date(2023, 10, 15),
+            photo="missing_persons_photos/ali.jpg"
+        )
 
-        for _ in range(15):
-            missing_person = random.choice(all_missing_persons)
-            searcher = random.choice(all_searchers)
+        person2, _ = MissingPerson.objects.get_or_create(
+            full_name="Sara Mohamed",
+            date_of_birth=date(2008, 3, 22),
+            gender="F",
+            blood_type="O-",
+            disappearance_location="Giza",
+            disappearance_date=date(2024, 1, 5),
+            photo="missing_persons_photos/sara.jpg"
+        )
 
-            Report.objects.create(
-                missing_person=missing_person,
-                searcher=searcher
-            )
-        self.stdout.write(self.style.SUCCESS('Successfully created 15 reports!'))
+        # Create reports
+        Report.objects.get_or_create(
+            missing_person=person1,
+            searcher=searcher1,
+            defaults={"status": "Active"}
+        )
 
-        self.stdout.write(self.style.SUCCESS('Database has been seeded!'))
+        Report.objects.get_or_create(
+            missing_person=person2,
+            searcher=searcher2,
+            defaults={"status": "Active"}
+        )
+
+        self.stdout.write(self.style.SUCCESS("Seeding completed successfully!"))
