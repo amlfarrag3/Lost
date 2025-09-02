@@ -65,6 +65,8 @@ python manage.py createsuperuser
 python manage.py runserver
 
 ## Open your browser at http://127.0.0.1:8000/.
+```
+
 
 ## Usage
 
@@ -81,15 +83,14 @@ View reports under Reports.
 ## API Endpoints
 
     home =  http://127.0.0.1:8000/.
-    path('reports/'=report_list
-    path("advanced-search/", views.advanced_search, name="advanced-search"),
-    path("missing/add/", views.add_missing_with_report, name="add-missing-person"), 
-      #api-views
-    path("api/advanced-search/", views.advanced_search_api, name="api-advanced-search"),
-      # Authentication
-    path('login/', auth_views.LoginView.as_view(template_name="finder/login.html"), name="login"),
-    path('logout/', auth_views.LogoutView.as_view(), name="logout"),
-    path('signup/', views.signup, name="signup"),
+    GET /home/: Go to home page  (requires authentication).
+    GET /advanced-search/: Search missing persons  (requires authentication).
+    GET /reports/:Reports list  (requires authentication).
+    POST /missing/add/: Add missing persons  (requires authentication).
+    GET /login/: Login  
+    GET /logout/: Logout 
+    POST /signup/: Signup 
+   
 
 ## Dependencies
 
@@ -98,3 +99,9 @@ Django
 Django REST Framework
 
 Pillow (for image uploads)
+
+## Notes
+
+Only authenticated users can add missing persons or create reports.
+
+The system automatically creates a Searcher profile for each new user using signals.
