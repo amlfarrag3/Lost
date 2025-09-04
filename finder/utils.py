@@ -9,15 +9,15 @@ def get_possible_child_blood_types(mother_blood_type, father_blood_type):
 
     inheritance_map = {
         ('O', 'O'): ['O'],
-        ('O', 'A'): ['A', 'O'],
-        ('O', 'B'): ['B', 'O'],
-        ('O', 'AB'): ['A', 'B'],
+        ('A', 'O'): ['A', 'O'],
+        ('B', 'O'): ['B', 'O'],
         ('A', 'A'): ['A', 'O'],
         ('A', 'B'): ['A', 'B', 'AB', 'O'],
         ('A', 'AB'): ['A', 'B', 'AB'],
         ('B', 'B'): ['B', 'O'],
         ('B', 'AB'): ['A', 'B', 'AB'],
         ('AB', 'AB'): ['A', 'B', 'AB'],
+        ('AB', 'O'): ['A', 'B']
     }
 
     parents_pair = tuple(sorted((m_type, f_type)))

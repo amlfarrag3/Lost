@@ -12,7 +12,11 @@
             <li><a href="{% url 'advanced-search' %}">Advanced Search</a></li>
             <li><a href="{% url 'report-list' %}">Reports</a></li>
             <li><a href="{% url 'add-missing-person' %}">Add Missing Person</a></li>
-            <li><a href="{% url 'logout' %}">log out</a></li>
+            <form method="post" action="{% url 'logout' %}">
+    {% csrf_token %}
+    <button type="submit">Log out</button>
+</form>
+
         </ul>
     </nav>
 </body>

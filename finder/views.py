@@ -1,6 +1,7 @@
 from django.shortcuts import render , redirect
 from django.core.paginator import Paginator
 from .models import MissingPerson , Report, Searcher
+from django.db.models import Q
 from .utils import get_possible_child_blood_types
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
@@ -9,8 +10,8 @@ from rest_framework.permissions import IsAuthenticated
 from .forms import AdvancedSearchForm , ReportForm,  MissingPersonForm
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.decorators import login_required
-from django.db.models import Q
 from .serializers import MissingPersonSerializer
+from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
 
 def home(request):
@@ -30,7 +31,7 @@ def signup(request):
 
 @login_required(login_url="login")
 def add_missing_with_report(request):
-    # تأكد من أن الـ User الحالي عنده Searcher (لو User قديم)
+    # make sure that this user has a searcher
     Searcher.objects.get_or_create(
         user=request.user,
         defaults={
@@ -45,15 +46,15 @@ def add_missing_with_report(request):
         report_form = ReportForm(request.POST)
 
         if person_form.is_valid() and report_form.is_valid():
-            missing_person = person_form.save()  # حفظ بيانات المفقود
+            missing_person = person_form.save()  # save missing person data
 
-            # حفظ البلاغ مربوط بالمفقود والمستخدم الحالي كـ searcher
+            # Save the report associated with the missing person and the current user as a searcher
             report = report_form.save(commit=False)
             report.missing_person = missing_person
-            report.searcher = request.user.searcher  # الآن مضمون أن الـ Searcher موجود
+            report.searcher = request.user.searcher  # Now the searcher is guaranteed to exist
             report.save()
 
-            return redirect("report-list")  # رجوع لقائمة البلاغات
+            return redirect("report-list")  # Back to the report list
     else:
         person_form = MissingPersonForm()
         report_form = ReportForm()
@@ -100,10 +101,10 @@ def advanced_search_api(request):
 def advanced_search(request):
     form = AdvancedSearchForm(request.GET or None)
     page_obj = None
-    searched = False   # جديد
+    searched = False   # New
 
     if form.is_valid() and request.GET:  
-        searched = True   # يعني فيه بحث فعلاً
+        searched = True   # There is already a search
         name = form.cleaned_data.get("name")
         address = form.cleaned_data.get("address")
         date_from = form.cleaned_data.get("date_from")
@@ -127,7 +128,9 @@ def advanced_search(request):
             queryset = queryset.filter(blood_type=blood_type)
         elif mother and father:
             possible_types = get_possible_child_blood_types(mother, father)
-            queryset = queryset.filter(blood_type__in=possible_types)
+            queryset = queryset.filter(
+                Q(blood_type__in=possible_types) | Q(blood_type__isnull=True) | Q(blood_type="")
+            )
 
         paginator = Paginator(queryset, 10)
         page_number = request.GET.get("page")
@@ -136,7 +139,7 @@ def advanced_search(request):
     return render(request, "finder/advanced_search.html", {
         "form": form,
         "page_obj": page_obj,
-        "searched": searched,   # نبعته للـ template
+        "searched": searched,   #  send it to template
     })
 
 
@@ -158,10 +161,11 @@ def search_view(request):
     if disappearance_location:
         query_set = query_set.filter(disappearance_location__icontains=disappearance_location)
 
-    # ترتيب بالاسم (أبجديًا) وبعدين الأحدث في تاريخ الاختفاء
+
+    # Sort by name (alphabetically) then most recent in disappearance date
     query_set = query_set.order_by("full_name", "-disappearance_date")
 
-    # Pagination (10 نتائج في الصفحة)
+    # Pagination (search results in page 10)
     paginator = Paginator(query_set, 10)
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
@@ -180,7 +184,7 @@ def report_create(request):
         form = ReportForm(request.POST)
         if form.is_valid():
             report = form.save(commit=False)
-            report.searcher = request.user.searcher  # المستخدم الحالي
+            report.searcher = request.user.searcher  # Current user
             report.missing_person = MissingPerson.objects.create(
                 full_name=request.POST.get("full_name"),
                 blood_type=request.POST.get("blood_type"),
@@ -196,6 +200,10 @@ def report_create(request):
     return render(request, "finder/report_create.html", {"form": form})
 
 
+@login_required
+def user_logout(request):
+    logout(request)  
+    return redirect('login')
 
 
 
